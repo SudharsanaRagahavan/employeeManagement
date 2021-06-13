@@ -1,0 +1,23 @@
+spring:
+   main:
+    allow-bean-definition-overriding: true
+   application:
+      name: employee_management
+    
+   datasource:
+     url: jdbc:mysql://localhost:3306/employee_management?createDatabaseIfNotExist=true&useSSL=false&serverTimezone=UTC
+     username: root
+     password: root
+
+   jpa:
+    hibernate:
+        ddl-auto : update
+
+
+logging:
+   file: target/employee-management.log
+   level:
+      root: WARN
+      com: 
+         fps: 
+            service: INFO
