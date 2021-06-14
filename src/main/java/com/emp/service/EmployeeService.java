@@ -2,6 +2,9 @@ package com.emp.service;
 
 import java.sql.Timestamp;
 import java.text.ParseException;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -212,12 +215,43 @@ public class EmployeeService {
 		for (Schedule schedule : empRes.getSchedule()) {
 			if (DateUtils.isSameDay(schedule.getStartDate(), EmployeeUtil.convertDate(date))) {
 				schedule.setStartDate(Timestamp.valueOf(schedule.getStartDate().toLocalDateTime().plusDays(1)));
+				schedules.add(schedule);
+			} else if (DateUtils.isSameDay(schedule.getEndDate(), EmployeeUtil.convertDate(date))) {
+				schedule.setEndDate(Timestamp.valueOf(schedule.getEndDate().toLocalDateTime().minusDays(1)));
+				schedules.add(schedule);
+			} else if (schedule.getStartDate().before(EmployeeUtil.convertDate(date))
+					&& schedule.getEndDate().after(EmployeeUtil.convertDate(date))) {
+				Schedule schedule2 = new Schedule();
+				schedule2.setDuration(schedule.getDuration());
+				schedule2.setFrequency(schedule.getFrequency());
+				schedule2.setStartDate(schedule.getStartDate());
+				schedule2.setEndDate(Timestamp.valueOf(convertDateToLocalDateTime(date).minusDays(0)));
+				schedule2.setRepeat(schedule.getRepeat());
+				schedule2.setTime(schedule.getTime());
+				schedules.add(schedule2);
+				schedule2 = new Schedule();
+				schedule2.setStartDate(Timestamp.valueOf(convertDateToLocalDateTime(date).plusDays(2)));
+				schedule2.setEndDate(schedule.getEndDate());
+				schedule2.setRepeat(schedule.getRepeat());
+				schedule2.setTime(schedule.getTime());
+				schedule2.setDuration(schedule.getDuration());
+				schedule2.setFrequency(schedule.getFrequency());
+				schedules.add(schedule2);
+			} else {
+				schedules.add(schedule);
 			}
-			schedules.add(schedule);
+
 		}
 		enitity.setEmployeeId(employeeId);
 		enitity.setSchedule(new ObjectMapper().writeValueAsString(schedules));
 		employeeDAO.createEmployee(enitity);
 		return setEmployeeResponse(enitity);
+	}
+
+	private LocalDateTime convertDateToLocalDateTime(String date) throws ParseException {
+		ZoneId defaultZoneId = ZoneId.systemDefault();
+		Instant instant = EmployeeUtil.convertDate(date).toInstant();
+		LocalDateTime localDate = instant.atZone(defaultZoneId).toLocalDateTime();
+		return localDate;
 	}
 }

@@ -20,8 +20,13 @@ public class EmployeeUtil {
 		List<Schedule> scheduleList = new ArrayList<Schedule>();
 		for (Schedule schedule : schedules) {
 			for (Schedule schedule2 : scheduleList) {
-				if (!(schedule.getStartDate().equals(schedule2.getStartDate())
-						&& schedule.getTime().equals(schedule2.getTime()))) {
+				if (schedule.getTime().equals(schedule2.getTime())) {
+					if (!(schedule.getStartDate().equals(schedule2.getStartDate())
+							&& schedule.getEndDate().equals(schedule2.getEndDate()))) {
+						scheduleList.add(schedule);
+						break;
+					}
+				} else {
 					scheduleList.add(schedule);
 					break;
 				}
